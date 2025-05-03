@@ -4,12 +4,24 @@ import User from './user.model.js';
 
 export const updatePassword = async (req, res) => {
     try{
-        const { usuario } = req
-        const { password } = req.body
-        const { newPassword } = req.body
+        const { user } = req
+        const { password, newPassword } = req.body;
 
-        const oldPassword = await verify(usuario.password, password)
+        if(!user || user.status === false){
+            return res.status(400).json({
+                success: false,
+                message: "Previously deactivated user"
+            })
+        }
 
+        if(!password){
+            return res.status(400).json({
+                success: false,
+                msg: "Old password is required"
+            })
+        }
+
+        const oldPassword = await verify(user.password, password)
 
         if(!oldPassword){
             return res.status(400).json({
@@ -18,24 +30,21 @@ export const updatePassword = async (req, res) => {
             })
         }
 
-        const user = await User.findById(usuario._id)
-
-        const matchOldAndNewPassword = await verify(user.password, newPassword)
-
-        if(matchOldAndNewPassword){
+        const isSamePassword = await verify(user.password, newPassword);
+        if (isSamePassword) {
             return res.status(400).json({
                 success: false,
                 msg: "The new password cannot be the same as the previous one"
-            })
+            });
         }
 
         const encryptedPassword = await hash(newPassword)
 
-        await User.findByIdAndUpdate(usuario._id, {password: encryptedPassword}, {new: true})
+        await User.findByIdAndUpdate(user._id, {password: encryptedPassword}, {new: true})
 
         return res.status(200).json({
             success: true,
-            msg: "Updated password",
+            msg: "Password updated successfully",
         })
 
     }catch(err){
@@ -49,18 +58,24 @@ export const updatePassword = async (req, res) => {
 
 export const updateMe = async (req, res) => {
     try {
-        const { usuario } = req
+        const { user } = req
         const data = req.body
+        
+        if(!user || user.status === false){
+            return res.status(400).json({
+                success: false,
+                message: "Previously deactivated user"
+            })
+        }
 
-        const user = await User.findByIdAndUpdate(usuario._id, data, { new: true })
+        const updatedUser = await User.findByIdAndUpdate(user._id, data, { new: true })
 
         res.status(200).json({
             success: true,
-            msg: "Updated user",
-            user: user
+            msg: "User updated successfully",
+            user: updatedUser 
         })
 
-        console.log(user)
     }catch(err){
         res.status(500).json({
             success: false,
@@ -74,20 +89,36 @@ export const updateUser = async (req, res) => {
     try {
         const { uid } = req.params 
         const data = req.body 
+        const requester  = await User.findById(uid)
 
-        const user = await User.findById(uid)
+        if(requester.status === false){
+            return res.status(400).json({
+                success: false,
+                message: "Previously deactivated user"
+            })
+        }
 
-        if (!user) {
+        const targetUser  = await User.findById(uid)
+        if (!targetUser) {
             return res.status(400).json({
                 success: false,
                 msg: "User not found",
             })
         }
 
-        if (user.role === "ADMIN_ROLE") {
+        if (targetUser.role === "ADMIN_ROLE") {
             return res.status(403).json({
                 success: false,
                 msg: "You cannot modify another admin",
+            })
+        }
+
+        const existingCredentials = await User.findOne({$or:[{email: data.email}, {username: data.username}]})
+
+        if (existingCredentials && existingCredentials._id.toString() !== uid) {
+            return res.status(400).json({
+                success: false,
+                msg: "The credentials are already in use",
             })
         }
 
@@ -95,7 +126,7 @@ export const updateUser = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            msg: "Updated user",
+            msg: "User updated successfully",
             user: updatedUser,
         })
     } catch (err) {
@@ -109,19 +140,26 @@ export const updateUser = async (req, res) => {
 
 export const deleteMe = async (req, res) => {
     try{
-        const { usuario } = req
+        const { user } = req
 
-        await User.findByIdAndUpdate(usuario, {status: false}, {new: true})
+        if(!user || user.status === false){
+            return res.status(400).json({
+                success: false,
+                message: "Previously deactivated user"
+            })
+        }
+
+        await User.findByIdAndUpdate(user, {status: false}, {new: true})
 
         return res.status(200).json({
             success: true,
-            message: "Deleted User"
+            message: "User deactivated successfully"
 
         })
     }catch(err){
         return res.status(500).json({
             success: false,
-            message: "Error deleting User",
+            message: "Error deactivating user",
             error: err.message
         })
     }
@@ -130,16 +168,24 @@ export const deleteMe = async (req, res) => {
 export const deleteUser = async (req, res) => {
     try {
         const { uid } = req.params
+        const requester = await User.findById(uid)
 
-        const user = await User.findById(uid)
-        if (!user) {
+        if(!requester || requester.status === false){
+            return res.status(400).json({
+                success: false,
+                message: "Previously deactivated user"
+            })
+        }
+
+        const targetUser = await User.findById(uid)
+        if (!targetUser) {
             return res.status(400).json({
                 success: false,
                 msg: "User not found",
             })
         }
 
-        if (user.role === "ADMIN_ROLE") {
+        if (targetUser.role === "ADMIN_ROLE") {
             return res.status(403).json({
                 success: false,
                 msg: "You cannot delete another admin",
@@ -150,7 +196,7 @@ export const deleteUser = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            msg: "User deleted" 
+            msg: "User deactivated successfully" 
         })
     } catch (err) {
         return res.status(500).json({

@@ -6,10 +6,11 @@ export const register = async (req, res) => {
     try {
         const data = req.body;
 
-        const existingUser = await User.findOne({ email: data.email });
-        console.log(data)
+        const existingUser = await User.findOne({$or:[{email: data.email}, {username: data.username}]});
         if (existingUser) {
-            return res.status(400).json({ msg: "The user is already registered" });
+            return res.status(400).json({
+                msg: "The credentials are already in use"
+            });
         }
 
         data.password = await hash(data.password);
@@ -32,10 +33,9 @@ export const login = async (req, res) => {
     try{
         const user = await User.findOne({$or:[{email: email}, {username: username}]})
 
-        if(!user){
+        if(!user || user.status === false){
             return res.status(400).json({
-                message: "Invalid Credentials",
-                error:"The email or username entered does not exist"
+                message: "Invalid Credentials"
             })
         }
 
@@ -44,7 +44,6 @@ export const login = async (req, res) => {
         if(!validPassword){
             return res.status(400).json({
                 message: "Invalid Credentials",
-                error: "Incorrect password"
             })
         }
 

@@ -32,7 +32,7 @@ const userSchema = Schema({
         default: "USER_ROLE"
         
     },
-    historialReservas:
+    reservationHistory:
     [{ 
         type: Schema.Types.ObjectId, 
         ref: 'Reservation'
@@ -48,9 +48,9 @@ const userSchema = Schema({
 })
 
 userSchema.methods.toJSON = function(){
-    const {password, _id, ...usuario} = this.toObject()
-    usuario.uid = _id
-    return usuario
+    const {password, _id, ...user} = this.toObject()
+    user.uid = _id
+    return user
 }
 
 export default model("User", userSchema)

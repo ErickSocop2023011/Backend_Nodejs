@@ -42,11 +42,11 @@ export const deleteUserValidator = [
 
 export const deleteMeValidator = [
     validateJWT,
-    body("confirm").isString().withMessage("Confirmation not provided (Please type confirm to delete your account)"),
-    body("confirm").isIn(["yes", "no"]).withMessage("Invalid confirmation"),
+    body("confirm")
+        .isString().withMessage("Confirmation not provided (Please type 'confirm' to delete your account)")
+        .equals("confirm").withMessage("You must type 'confirm' to delete your account"),
     validateFields,
     handleErrors
-
 ];
 
 export const updatePasswordValidator = [
