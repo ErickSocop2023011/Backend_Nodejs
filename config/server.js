@@ -4,6 +4,7 @@ import helmet from "helmet"
 import morgan from "morgan"
 import authRoutes from "../src/auth/auth.routes.js"
 import useRoutes from "../src/user/user.routes.js"
+import hotelRoutes from "../src/hotel/hotel.routes.js"
 import apiLimiter from "../src/middlewares/rate-limit-validator.js"
 import { dbConnection } from "./mongo.js"
 import {createDefaultAdmin} from "./default-data.js"
@@ -23,6 +24,7 @@ const routes = (app) => {
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
     app.use("/hotelforce/v1/auth", authRoutes);
     app.use("/hotelforce/v1/user", useRoutes)
+    app.use("/hotelforce/v1/hotel", hotelRoutes)
 }
 
 const ConnectDB = async () => {

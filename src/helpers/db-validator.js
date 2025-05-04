@@ -1,4 +1,8 @@
 import User from "../user/user.model.js";
+import Hotel from "../hotel/hotel.model.js";
+/*import Room from "../room/room.model.js";
+import Event from "../event/event.model.js";
+import Service from "../service/service.model.js";*/
 
 export const emailExists = async (email = "") => {
     const existe = await User.findOne({email})
@@ -21,3 +25,31 @@ export const userExists = async (uid = " ") => {
         throw new Error("The user does not exist")
     }
 }
+
+export const hotelExists = async (hid = " ") => {
+    const existe = await Hotel.findById(hid)
+    if(!existe){
+        throw new Error("The hotel does not exist")
+    }
+}
+
+/*export const roomExists = async (rid = " ") => {
+    const existe = await Room.findById(rid)
+    if(!existe){
+        throw new Error("The room does not exist")
+    }
+}
+
+export const eventExists = async (eid = " ") => {
+    const existe = await Event.findById(eid)
+    if(!existe){
+        throw new Error("The event does not exist")
+    }
+}
+
+export const serviceExists = async (sid = " ") => {
+    const existe = await Service.findById(sid)
+    if(!existe){
+        throw new Error("The service does not exist")
+    }
+}*/
