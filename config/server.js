@@ -5,6 +5,7 @@ import morgan from "morgan"
 import authRoutes from "../src/auth/auth.routes.js"
 import useRoutes from "../src/user/user.routes.js"
 import hotelRoutes from "../src/hotel/hotel.routes.js"
+import amenityRoutes from "../src/amenity/amenity.routes.js"
 import apiLimiter from "../src/middlewares/rate-limit-validator.js"
 import { dbConnection } from "./mongo.js"
 import {createDefaultAdmin} from "./default-data.js"
@@ -25,6 +26,7 @@ const routes = (app) => {
     app.use("/hotelforce/v1/auth", authRoutes);
     app.use("/hotelforce/v1/user", useRoutes)
     app.use("/hotelforce/v1/hotel", hotelRoutes)
+    app.use("/hotelforce/v1/amenity", amenityRoutes)
 }
 
 const ConnectDB = async () => {

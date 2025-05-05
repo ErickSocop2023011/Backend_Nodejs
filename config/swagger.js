@@ -36,7 +36,8 @@ const options ={
     apis:[
         "./src/user/user.routes.js",
         "./src/auth/auth.routes.js",
-        "./src/hotel/hotel.routes.js"
+        "./src/hotel/hotel.routes.js",
+        "./src/amenity/amenity.routes.js"
     ]
 }
 

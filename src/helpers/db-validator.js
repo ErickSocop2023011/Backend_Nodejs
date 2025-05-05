@@ -1,5 +1,6 @@
 import User from "../user/user.model.js";
 import Hotel from "../hotel/hotel.model.js";
+import Amenity from "../amenity/amenity.model.js";
 /*import Room from "../room/room.model.js";
 import Event from "../event/event.model.js";
 import Service from "../service/service.model.js";*/
@@ -32,6 +33,21 @@ export const hotelExists = async (hid = " ") => {
         throw new Error("The hotel does not exist")
     }
 }
+
+export const amenityExistsById = async (id) => {
+    const exists = await Amenity.findById(id);
+        if (!exists) {
+        throw new Error(`Amenity with ID ${id} does not exist`);
+    }
+};
+
+export const amenityNameExists = async (name) => {
+    const exists = await Amenity.findOne({ name });
+        if (exists) {
+        throw new Error(`Amenity with name "${name}" already exists`);
+    }
+};
+
 
 /*export const roomExists = async (rid = " ") => {
     const existe = await Room.findById(rid)
